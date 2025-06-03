@@ -1,0 +1,12 @@
+
+Run
+mvn clean verify -Dcucumber.options="--tags @tcName-1 --tags ~@NOT_READY"
+
+C1: Rerun
+mvn clean verify -Dcucumber.options=“@rerun/serenity-reports/rerun.txt"  //bo option clean
+C2: Rerun
+mvn clean verify -Dcucumber.options="--tags @tcName-1" -Dfailsafe.rerunFailingTestsCount=2
+
+mvn clean verify -Dcucumber.options="--tags @TC_2 --tags ~@NOT_READY" -Denvironment=android_SIT
+
+#    // khi mà run có clean thì sẽ xóa report cũ và ngược lại sẽ ghi đè

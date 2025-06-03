@@ -1,0 +1,54 @@
+name: Run Serenity Tests
+
+on:
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+  schedule:
+    - cron: '41 9 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  serenity-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout source code
+        uses: actions/checkout@v4
+
+      - name: 🕒 Print current UTC time
+        run: date -u
+
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🛠️ Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: 📦 Build and Run Tests
+        run: mvn clean verify -Dcucumber.filter.tags="@test_ALTINV"
+
+      - name: 📤 Upload Serenity Report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: serenity-report
+          path: target/site/serenity
+
+      - name: 🏁 Deploy Serenity Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/serenity
+          publish_branch: gh-pages
+          force_orphan: true
